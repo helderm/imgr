@@ -7,7 +7,7 @@ import os
 from pymongo import MongoClient
 
 # instantiate Celery object
-broker = os.getenv('OPENSHIFT_RABBITMQ_URI', 'amqp://localhost')
+broker = os.getenv('MONGODB_URL', 'mongodb://localhost:27017/celery')
 app = Celery(include=[ 'imgr.tasks' ], broker=broker)
 app.config_from_object('imgr.celeryconfig')
 
