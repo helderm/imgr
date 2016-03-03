@@ -1,14 +1,21 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 from celery import Celery
-
-app = Celery('tasks')
-app.config_from_object('celeryconfig')
-
+from datetime import timedelta
+import os
 from pymongo import MongoClient
-client = MongoClient()
+
+# instantiate Celery object
+broker = os.getenv('OPENSHIFT_RABBITMQ_URI', 'amqp://localhost')
+app = Celery(include=[ 'imgr.tasks' ], broker=broker)
+app.config_from_object('imgr.celeryconfig')
+
+client = MongoClient(connect=False)
 db = client['imgr']
 
 @app.task
-def list(path):
+def syncfs(path):
     import os
     from glob import glob
     from itertools import chain
@@ -33,3 +40,6 @@ def list(path):
         if fdoc['del'] == True:
             os.remove(filename)
             col.delete_one(fdoc)
+
+if __name__ == '__main__':
+    app.start()

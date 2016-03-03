@@ -1,11 +1,13 @@
 from datetime import timedelta
+import os
 
-CELERY_IMPORTS=('tasks',)
+rootdir = os.getenv('OPENSHIFT_DATA_DIR', '/home/helder/git/imgr/imgr')
+
 CELERYBEAT_SCHEDULE = {
-    'list-files': {
-        'task': 'tasks.list',
-        'schedule': timedelta(seconds=10),
-        'args': ['/home/helder/git/imgr/imgr']
+    'syncfs-task': {
+        'task': 'imgr.tasks.syncfs',
+        'schedule': timedelta(minutes=1),
+        'args': [rootdir]
     },
 }
 

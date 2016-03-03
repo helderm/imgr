@@ -3,7 +3,7 @@ import tornado.ioloop
 from tornado.web import Application, RequestHandler
 from tornado.options import define, options
 import time
-from tasks import add
+from imgr.tasks import syncfs
 
 class MainHandler(RequestHandler):
 
@@ -12,10 +12,7 @@ class MainHandler(RequestHandler):
 
 
 def my_callback():
-    import random
-    a = random.randint(0,10)
-    b = random.randint(0,10)
-    add.delay(a, b)
+    syncfs.delay('/home/helder/git/imgr/imgr/')
 
 
 def main():
