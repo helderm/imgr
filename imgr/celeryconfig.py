@@ -1,7 +1,8 @@
 from datetime import timedelta
 import os
 
-rootdir = os.getenv('OPENSHIFT_DATA_DIR', '/home/helder/git/imgr/imgr')
+rootdir = os.getenv('OPENSHIFT_DATA_DIR', '/home/helder/git/imgr/')
+rootdir += 'imgr'
 
 CELERYBEAT_SCHEDULE = {
     'syncfs-task': {
