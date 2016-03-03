@@ -8,10 +8,10 @@ from pymongo import MongoClient
 
 # instantiate Celery object
 mongodb_url = os.getenv('MONGODB_URL', 'mongodb://localhost:27017/')
-app = Celery(include=[ 'imgr.tasks' ], broker=mongourl + 'celery')
+app = Celery(include=[ 'imgr.tasks' ], broker=mongodb_url + 'celery')
 app.config_from_object('imgr.celeryconfig')
 
-client = MongoClient(host=mongourl + 'imgr', connect=False)
+client = MongoClient(host=mongodb_url + 'imgr', connect=False)
 db = client['imgr']
 
 @app.task
