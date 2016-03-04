@@ -68,7 +68,7 @@ class MainHandler(RequestHandler):
         col = self.db['files']
         doc = yield col.find_and_modify({ '_id': uuid }, { '$set': { 'del': True } } )
 
-        if doc is None
+        if doc is None:
             res['status'] = 1
             res['message'] = 'File ID not found.'
         
