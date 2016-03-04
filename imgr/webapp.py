@@ -54,6 +54,25 @@ class MainHandler(RequestHandler):
             res['message'] = 'File ID not found.'
         
         self.write(res)
+
+    @coroutine
+    def delete(self, uuid):
+        # checking input
+        regex = re.compile('[a-f0-9]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\Z', re.I)
+        if not regex.match(uuid):
+            raise HTTPError(400, 'Invalid uuid')
+
+        res = { 'status': 0 }  
+
+        # delete file        
+        col = self.db['files']
+        count = yield col.delete_one({ '_id': uuid })
+
+        if count == 0:
+            res['status'] = 1
+            res['message'] = 'File ID not found.'
+        
+        self.write(res)
         
 
 def main():
