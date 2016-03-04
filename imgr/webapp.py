@@ -19,7 +19,7 @@ class MainHandler(RequestHandler):
         key = self.get_argument('k')
         files = []
 
-        cursor = col.find({key: {'$regex': query, '$options': 'si' }})            
+        cursor = col.find({key: {'$regex': query, '$options': 'si'}, 'del': False })            
         for file in (yield cursor.to_list(length=100)):
             files.append(file)
 
@@ -47,7 +47,7 @@ class MainHandler(RequestHandler):
         
         col = self.db['files']
         upkey = 'meta.{0}'.format(data['key'])
-        doc = yield col.find_and_modify({ '_id': uuid }, { '$set': { upkey: data['val'] } } )
+        doc = yield col.find_and_modify({ '_id': uuid, 'del': False }, { '$set': { upkey: data['val'] } } )
 
         if doc is None:
             res['status'] = 1
@@ -66,9 +66,9 @@ class MainHandler(RequestHandler):
 
         # delete file        
         col = self.db['files']
-        count = yield col.delete_one({ '_id': uuid })
+        doc = yield col.find_and_modify({ '_id': uuid }, { '$set': { 'del': True } } )
 
-        if count == 0:
+        if doc is None
             res['status'] = 1
             res['message'] = 'File ID not found.'
         
