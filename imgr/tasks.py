@@ -19,6 +19,7 @@ def syncfs(path):
     import os
     from glob import glob
     from itertools import chain
+    import uuid
     
     col = db['files']
 
@@ -29,9 +30,10 @@ def syncfs(path):
         
         # if file is not in db, add it
         if not fdoc:
-            fdoc = { 'name': filename,
-                     'del': False,
-                     'meta': {} }
+            fdoc = {'_id': str(uuid.uuid4()),
+                    'name': filename,
+                    'del': False,
+                    'meta': {} }
 
             col.insert_one(fdoc)
             continue
