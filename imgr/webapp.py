@@ -7,6 +7,7 @@ from tornado.gen import coroutine, Return
 import motor
 import json
 import re
+import os
 
 class HomeHandler(RequestHandler):
 
@@ -110,11 +111,12 @@ def main():
 
     client = motor.motor_tornado.MotorClient(options.mongodb_url)
     db = client['imgr']
+    repo_dir = os.getenv('OPENSHIFT_REPO_DIR', '.')
 
     application = Application([(r"/files/([^/]+)", MainHandler, dict(db=db)),
                                 (r"/files", MainHandler, dict(db=db)),
                                 (r'/', HomeHandler, )], 
-                                template_path='templates/')
+                                template_path=repo_dir + '/templates/')
     application.listen(options.port, options.host)
 
     tornado.ioloop.IOLoop.instance().start()
