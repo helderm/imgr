@@ -2,4 +2,5 @@ wheel
 tornado
 argparse
 celery
-pymongo
+pymongo==2.8.0
+motor
