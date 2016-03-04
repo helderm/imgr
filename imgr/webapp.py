@@ -9,9 +9,21 @@ import json
 import re
 import os
 
-class HomeHandler(RequestHandler):
+base_url = 'http://imgr-helderm.rhcloud.com'
 
-    base_url = 'http://imgr-helderm.rhcloud.com'
+class FileHandler(RequestHandler):
+
+    @coroutine
+    def get(self, uuid):
+        regex = re.compile('[a-f0-9]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\Z', re.I)
+        if not regex.match(uuid):
+            raise HTTPError(400, 'Invalid uuid')
+
+        self.render("file.html", title='File Description', meta=meta)            
+
+
+
+class HomeHandler(RequestHandler):    
 
     @coroutine
     def get(self):
@@ -25,7 +37,7 @@ class HomeHandler(RequestHandler):
         client = AsyncHTTPClient()
         files = []
         if query:
-            res = yield client.fetch(self.base_url + '/files?q={q}&k={k}'.format(q=query, k=key))
+            res = yield client.fetch(base_url + '/files?q={q}&k={k}'.format(q=query, k=key))
             res = json.loads(res.body)
 
             for file in res['files']:
@@ -41,10 +53,16 @@ class MainHandler(RequestHandler):
         self.db = db
     
     @coroutine
-    def get(self):
+    def get(self, uuid=None):
         col = self.db['files']
-        query = self.get_argument('q')
-        key = self.get_argument('k')
+        
+        if not uuid:
+            query = self.get_argument('q')
+            key = self.get_argument('k')
+        else:
+            query = uuid
+            key = '_id'
+
         files = []
 
         cursor = col.find({key: {'$regex': query, '$options': 'si'}, 'del': False })            
@@ -113,8 +131,8 @@ def main():
     db = client['imgr']
     repo_dir = os.getenv('OPENSHIFT_REPO_DIR', '.')
 
-    application = Application([(r"/files/([^/]+)", MainHandler, dict(db=db)),
-                                (r"/files", MainHandler, dict(db=db)),
+    application = Application([(r"/files/([^/]+)/?", MainHandler, dict(db=db)),
+                                (r"/files/?", MainHandler, dict(db=db)),
                                 (r'/', HomeHandler, )], 
                                 template_path=repo_dir + '/templates/')
     application.listen(options.port, options.host)
