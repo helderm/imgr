@@ -1,0 +1,20 @@
+<html>
+   <head>
+      <title>{{ title }}</title>
+   </head>
+   <body>
+       <form>
+          Search:<br>
+          <input type="text" name="q"><br>
+          Metadata Key:<br>
+          <input type="text" name="k"><br>
+          <input type="submit" value="Submit">
+        </form> 
+
+     <ul>
+       {% for item in items %}
+         <li>{{ escape(item) }}</li>
+       {% end %}
+     </ul>
+   </body>
+ </html>

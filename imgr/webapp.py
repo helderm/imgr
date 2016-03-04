@@ -1,11 +1,38 @@
 # -*- coding: utf-8 -*-
 import tornado.ioloop
 from tornado.web import Application, RequestHandler, HTTPError
+from tornado.httpclient import AsyncHTTPClient
 from tornado.options import define, options
 from tornado.gen import coroutine, Return
 import motor
 import json
 import re
+
+class HomeHandler(RequestHandler):
+
+    base_url = 'http://imgr-helderm.rhcloud.com'
+
+    @coroutine
+    def get(self):
+        query = self.get_argument('q', None)
+        key = self.get_argument('k', '')
+        if len(key) <= 0:
+            key = 'name'
+        else:
+            key = 'meta.' + key
+
+        client = AsyncHTTPClient()
+        files = []
+        if query:
+            res = yield client.fetch(self.base_url + '/files?q={q}&k={k}'.format(q=query, k=key))
+            res = json.loads(res.body)
+
+            for file in res['files']:
+                files.append(file['name'])
+
+        self.render("index.html", title='Image Bank', items=files)
+
+
 
 class MainHandler(RequestHandler):
     
@@ -85,7 +112,9 @@ def main():
     db = client['imgr']
 
     application = Application([(r"/files/([^/]+)", MainHandler, dict(db=db)),
-                                (r"/files", MainHandler, dict(db=db)),])
+                                (r"/files", MainHandler, dict(db=db)),
+                                (r'/', HomeHandler, )], 
+                                template_path='templates/')
     application.listen(options.port, options.host)
 
     tornado.ioloop.IOLoop.instance().start()
