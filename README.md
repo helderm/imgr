@@ -29,7 +29,7 @@ Body
 {"key":"metakey", "key":"metaval"}
 ```
 
-Resposta:
+Returns:
 
 ```json
 {"status": 0}
@@ -48,7 +48,7 @@ key | str | Key field to be serched | Optional. Defaults to 'name' | meta.metake
 "GET http://imgr-helderm.rhcloud.com/files?query=metav&key=meta.metakey"
 ```
 
-Resposta:
+Returns:
 
 ```json
 {"status": 0, "files": [{"type": "text/plain", "meta": { "metakey": "metaval"}, "_id": "b7a54362-d0d5-460f-8082-9a981fa83ec4", "name": "/teste1.txt"}]}
