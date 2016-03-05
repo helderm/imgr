@@ -9,8 +9,8 @@ import json
 import re
 import os
 
-#base_url = 'http://' + os.getenv('GEAR_DNS', 'localhost:8080')
-base_url = 'http://imgr-helderm.rhcloud.com'
+base_url = 'http://' + os.getenv('GEAR_DNS', 'localhost:8080')
+#base_url = 'http://imgr-helderm.rhcloud.com'
 
 class FileHandler(RequestHandler):
 
@@ -171,9 +171,6 @@ def main():
 
     settings = {
         "static_path": static_dir,
-        "cookie_secret": "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
-        "login_url": "/login",
-        "xsrf_cookies": True,
         'template_path': template_dir
     }
 
