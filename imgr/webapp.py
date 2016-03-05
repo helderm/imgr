@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import tornado.ioloop
 from tornado.web import Application, RequestHandler, HTTPError
-from tornado.httpclient import AsyncHTTPClient
+from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.options import define, options
 from tornado.gen import coroutine, Return
 import motor
@@ -14,20 +14,41 @@ base_url = 'http://imgr-helderm.rhcloud.com'
 class FileHandler(RequestHandler):
 
     @coroutine
+    def post(self, uuid):
+        client = AsyncHTTPClient()
+        regex = re.compile('[a-f0-9]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\Z', re.I)
+        if not regex.match(uuid):
+            raise HTTPError(400, 'Invalid uuid')
+            
+        metakey = self.get_body_arguments('key')
+        metaval = self.get_body_arguments('val')
+        if len(self.get_body_arguments('del')):
+            action = 'DELETE'
+        else:
+            action = 'PUT'
+
+        if len(metakey) and len(metakey[0]) \
+            and len(metaval) and len(metaval[0]):
+
+            body = {'key': metakey[0], 'val': metaval[0]}
+            req = HTTPRequest(url=base_url + '/files/{id}'.format(id=uuid), body=json.dumps(body), method=action)
+            res = yield client.fetch(req)   
+
+        yield self.get(uuid)   
+
+    @coroutine
     def get(self, uuid):
+        client = AsyncHTTPClient()
         regex = re.compile('[a-f0-9]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\Z', re.I)
         if not regex.match(uuid):
             raise HTTPError(400, 'Invalid uuid')
 
-        meta = []
-        filename = None
-        client = AsyncHTTPClient()
         res = yield client.fetch(base_url + '/files/{id}'.format(id=uuid))
         res = json.loads(res.body)
 
+        meta = []
         if len(res) <= 0:
             filename = 'File not found!'
-
         else:
             file = res['files'][0]
             filename = file['name']
@@ -122,11 +143,22 @@ class MainHandler(RequestHandler):
         if not regex.match(uuid):
             raise HTTPError(400, 'Invalid uuid')
 
-        res = { 'status': 0 }  
+        try:
+            data = json.loads(self.request.body)
+        except:
+            raise HTTPError(400, 'Invalid body')            
 
-        # delete file        
+
+        res = { 'status': 0 }  
         col = self.db['files']
-        doc = yield col.find_and_modify({ '_id': uuid }, { '$set': { 'del': True } } )
+
+        if 'key' in data:
+            # delete metadata
+            metakey = 'meta.' + data['key']
+            doc = yield col.find_and_modify({ '_id': uuid }, { '$unset': { metakey: '' } } )
+        else:
+            # delete file        
+            doc = yield col.find_and_modify({ '_id': uuid }, { '$set': { 'del': True } } )
 
         if doc is None:
             res['status'] = 1
