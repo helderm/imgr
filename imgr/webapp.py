@@ -59,20 +59,27 @@ class FileHandler(RequestHandler):
 class HomeHandler(RequestHandler):    
 
     @coroutine
-    def get(self):
-        query = self.get_argument('q', None)
-        key = self.get_argument('k', '')
-        if len(key) <= 0:
+    def post(self):
+        query = self.get_argument('q')
+        key = self.get_argument('k', None)
+        if not key:
             key = 'name'
         else:
             key = 'meta.' + key
 
         client = AsyncHTTPClient()
         files = []
-        if query:
-            res = yield client.fetch(base_url + '/files?q={q}&k={k}'.format(q=query, k=key))
-            res = json.loads(res.body)
-            files = res['files']
+
+        res = yield client.fetch(base_url + '/files?q={q}&k={k}'.format(q=query, k=key))
+        res = json.loads(res.body)
+        files = res['files']
+
+        yield self.get(files=files)
+
+    @coroutine
+    def get(self, files=None):
+        if not files:
+            files = []
 
         self.render("index.html", title='Image Bank', items=files)
 
