@@ -55,7 +55,7 @@ class HomeHandler(RequestHandler):
         if query:
             res = yield client.fetch(base_url + '/files?q={q}&k={k}'.format(q=query, k=key))
             res = json.loads(res.body)
-            files = res['files']:
+            files = res['files']
 
         self.render("index.html", title='Image Bank', items=files)
 
