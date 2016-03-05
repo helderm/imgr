@@ -27,7 +27,7 @@ def syncfs(path):
     filelist = (chain.from_iterable(glob(os.path.join(x[0], '*.*')) for x in os.walk(path)))
     for filename in filelist:
         
-        fname = re.sub(filename, '', path)
+        fname = re.sub(path, '', filename)
         fdoc = col.find_one({'name': fname})
         
         # if file is not in db, add it
