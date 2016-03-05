@@ -164,8 +164,8 @@ def main():
     client = motor.motor_tornado.MotorClient(options.mongodb_url)
     db = client['imgr']
     
-    template_dir = os.getenv('OPENSHIFT_REPO_DIR', os.path.dirname(__file__))
-    template_dir = os.path.join(template_dir, 'templates')
+    template_dir = os.getenv('OPENSHIFT_REPO_DIR', '')
+    template_dir = os.path.join(template_dir, 'imgr/templates')
     static_dir = os.getenv('OPENSHIFT_DATA_DIR', os.path.dirname(__file__))
     static_dir = os.path.join(static_dir, 'static')
 
