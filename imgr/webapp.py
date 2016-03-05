@@ -32,7 +32,7 @@ class FileHandler(RequestHandler):
 
         if len(metakey) and len(metakey[0]):
             body = {'key': metakey[0], 'val': metaval[0]}
-            req = HTTPRequest(url=base_url + '/files/{id}'.format(id=uuid), body=json.dumps(body), method='PUT')
+            req = HTTPRequest(url=base_url + '/files/{id}'.format(id=uuid), body=json.dumps(body), method='POST')
             res = yield client.fetch(req)   
 
         yield self.get(uuid)   
@@ -119,7 +119,7 @@ class MainHandler(RequestHandler):
         self.write(res)
 
     @coroutine
-    def put(self, uuid):
+    def post(self, uuid):
         # checking input
         regex = re.compile('[a-f0-9]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\Z', re.I)
         if not regex.match(uuid):
@@ -130,7 +130,7 @@ class MainHandler(RequestHandler):
         except:
             raise HTTPError(400, 'Invalid body')            
 
-        if 'key' not in data or 'val' not in data:
+        if 'key' not in data:
             raise HTTPError(400, 'Invalid body')            
 
         # updating file metadata
@@ -139,7 +139,7 @@ class MainHandler(RequestHandler):
         col = self.db['files']
         upkey = 'meta.{0}'.format(data['key'])
 
-        if data['val'] is None or len(data['val']) <= 0:
+        if 'val' not in data or data['val'] is None or len(data['val']) <= 0:
             doc = yield col.find_and_modify({ '_id': uuid }, { '$unset': { upkey: '' } } )
         else:
             doc = yield col.find_and_modify({ '_id': uuid, 'del': False }, { '$set': { upkey: data['val'] } } )
