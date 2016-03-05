@@ -13,7 +13,9 @@
 
      <ul>
        {% for item in items %}
-         <li>{{ escape(item) }}</li>
+         {% block item %}
+            <li> <a href="http://imgr-helderm.rhcloud.com/{{ item['_id'] }}"> {{ escape(item['name']) }} </a></li>
+         {% end %}
        {% end %}
      </ul>
    </body>

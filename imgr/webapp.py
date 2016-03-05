@@ -19,7 +19,23 @@ class FileHandler(RequestHandler):
         if not regex.match(uuid):
             raise HTTPError(400, 'Invalid uuid')
 
-        self.render("file.html", title='File Description', meta=meta)            
+        meta = []
+        filename = None
+        client = AsyncHTTPClient()
+        res = yield client.fetch(base_url + '/files/{id}'.format(id=uuid))
+        res = json.loads(res.body)
+
+        if len(res) <= 0:
+            filename = 'File not found!'
+
+        else:
+            file = res['files'][0]
+            filename = file['name']
+
+            for m, val in file['meta'].iteritems():
+                meta.append('{mkey}: {mval}'.format(mkey=m, mval=val))      
+
+        self.render("file.html", title='File Description', meta=meta, filename=filename)      
 
 
 
@@ -39,9 +55,7 @@ class HomeHandler(RequestHandler):
         if query:
             res = yield client.fetch(base_url + '/files?q={q}&k={k}'.format(q=query, k=key))
             res = json.loads(res.body)
-
-            for file in res['files']:
-                files.append(file['name'])
+            files = res['files']:
 
         self.render("index.html", title='Image Bank', items=files)
 
@@ -67,7 +81,7 @@ class MainHandler(RequestHandler):
 
         cursor = col.find({key: {'$regex': query, '$options': 'si'}, 'del': False })            
         for file in (yield cursor.to_list(length=100)):
-            files.append(file)
+                files.append(file)
 
         res = {'status': 0,
                 'files': files}
@@ -133,7 +147,8 @@ def main():
 
     application = Application([(r"/files/([^/]+)/?", MainHandler, dict(db=db)),
                                 (r"/files/?", MainHandler, dict(db=db)),
-                                (r'/', HomeHandler, )], 
+                                (r'/?', HomeHandler, ), 
+                                (r'/([^/]+)/?', FileHandler, )], 
                                 template_path=repo_dir + '/templates/')
     application.listen(options.port, options.host)
 
