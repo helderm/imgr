@@ -9,8 +9,7 @@ import json
 import re
 import os
 
-base_url = 'http://' + os.getenv('GEAR_DNS', 'localhost:8080')
-#base_url = 'http://imgr-helderm.rhcloud.com'
+base_url = 'http://' + os.getenv('OPENSHIFT_GEAR_DNS', 'localhost:8080')
 
 class FileHandler(RequestHandler):
 
