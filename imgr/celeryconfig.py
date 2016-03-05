@@ -7,7 +7,7 @@ rootdir += 'imgr'
 CELERYBEAT_SCHEDULE = {
     'syncfs-task': {
         'task': 'imgr.tasks.syncfs',
-        'schedule': timedelta(minutes=10),
+        'schedule': timedelta(minutes=5),
         'args': [rootdir]
     },
 }
