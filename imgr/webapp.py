@@ -9,6 +9,7 @@ import json
 import re
 import os
 
+#base_url = 'http://' + os.getenv('GEAR_DNS', 'localhost:8080')
 base_url = 'http://imgr-helderm.rhcloud.com'
 
 class FileHandler(RequestHandler):
@@ -162,13 +163,25 @@ def main():
 
     client = motor.motor_tornado.MotorClient(options.mongodb_url)
     db = client['imgr']
-    repo_dir = os.getenv('OPENSHIFT_REPO_DIR', '.')
+    
+    template_dir = os.getenv('OPENSHIFT_REPO_DIR', os.path.dirname(__file__))
+    template_dir = os.path.join(template_dir, 'templates')
+    static_dir = os.getenv('OPENSHIFT_DATA_DIR', os.path.dirname(__file__))
+    static_dir = os.path.join(static_dir, 'static')
+
+    settings = {
+        "static_path": static_dir,
+        "cookie_secret": "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
+        "login_url": "/login",
+        "xsrf_cookies": True,
+        'template_path': template_dir
+    }
 
     application = Application([(r"/files/([^/]+)/?", MainHandler, dict(db=db)),
                                 (r"/files/?", MainHandler, dict(db=db)),
                                 (r'/?', HomeHandler, ), 
-                                (r'/([^/]+)/?', FileHandler, )], 
-                                template_path=repo_dir + '/templates/')
+                                (r'/([^/]+)/?', FileHandler, )],
+                                **settings)
     application.listen(options.port, options.host)
 
     tornado.ioloop.IOLoop.instance().start()
