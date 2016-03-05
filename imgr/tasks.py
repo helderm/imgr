@@ -42,8 +42,8 @@ def syncfs(path):
 
         # if file is in db, and 'remove' tag is true, remove file
         if fdoc['del'] == True:
-            os.remove(fname)
-            col.delete_one(fdoc)
+            os.remove(path + fname)
+            col.remove(fdoc)
 
 if __name__ == '__main__':
     app.start()
