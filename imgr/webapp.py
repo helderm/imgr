@@ -20,6 +20,13 @@ class FileHandler(RequestHandler):
         if not regex.match(uuid):
             raise HTTPError(400, 'Invalid uuid')
             
+        delete = self.get_argument('del', None)
+        if delete:
+            req = HTTPRequest(url=base_url + '/files/{id}'.format(id=uuid), method='DELETE')
+            res = yield client.fetch(req)
+            yield self.redirect(base_url)
+            return
+
         metakey = self.get_body_arguments('key')
         metaval = self.get_body_arguments('val')
 
