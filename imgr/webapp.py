@@ -77,7 +77,7 @@ class HomeHandler(RequestHandler):
         client = AsyncHTTPClient()
         files = []
 
-        res = yield client.fetch(base_url + '/files?q={q}&k={k}'.format(q=query, k=key))
+        res = yield client.fetch(base_url + '/files?query={q}&key={k}'.format(q=query, k=key))
         res = json.loads(res.body)
         files = res['files']
 
@@ -102,8 +102,8 @@ class MainHandler(RequestHandler):
         col = self.db['files']
         
         if not uuid:
-            query = self.get_argument('q')
-            key = self.get_argument('k')
+            query = self.get_argument('query')
+            key = self.get_argument('key')
         else:
             query = uuid
             key = '_id'
