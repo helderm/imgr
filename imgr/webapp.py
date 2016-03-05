@@ -22,16 +22,10 @@ class FileHandler(RequestHandler):
             
         metakey = self.get_body_arguments('key')
         metaval = self.get_body_arguments('val')
-        if len(self.get_body_arguments('del')):
-            action = 'DELETE'
-        else:
-            action = 'PUT'
 
-        if len(metakey) and len(metakey[0]) and \
-            (action == 'DELETE' or (len(metaval) and len(metaval[0]))):
-
+        if len(metakey) and len(metakey[0]):
             body = {'key': metakey[0], 'val': metaval[0]}
-            req = HTTPRequest(url=base_url + '/files/{id}'.format(id=uuid), body=json.dumps(body), method=action)
+            req = HTTPRequest(url=base_url + '/files/{id}'.format(id=uuid), body=json.dumps(body), method='PUT')
             res = yield client.fetch(req)   
 
         yield self.get(uuid)   

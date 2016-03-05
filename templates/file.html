@@ -7,8 +7,16 @@
       <h6> Metadata: <h6>
       <ul>
         {% for m in meta %}
-          <li>{{ escape(m) }}</li>
+          <li>
+            {{ escape(m) }}
+          </li>
         {% end %}
      </ul>
+
+    <form method='post'>
+      <input type="text" name="key" value="Metadata Key"><br>
+      <input type="text" name="val" value="Metadata Value"><br>
+      <input type="submit" value="Modify">
+    </form> 
    </body>
  </html>
