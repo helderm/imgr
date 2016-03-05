@@ -27,8 +27,8 @@ class FileHandler(RequestHandler):
         else:
             action = 'PUT'
 
-        if len(metakey) and len(metakey[0]) \
-            and len(metaval) and len(metaval[0]):
+        if len(metakey) and len(metakey[0]) and \
+            (action == 'DELETE' or (len(metaval) and len(metaval[0]))):
 
             body = {'key': metakey[0], 'val': metaval[0]}
             req = HTTPRequest(url=base_url + '/files/{id}'.format(id=uuid), body=json.dumps(body), method=action)
@@ -128,7 +128,11 @@ class MainHandler(RequestHandler):
         
         col = self.db['files']
         upkey = 'meta.{0}'.format(data['key'])
-        doc = yield col.find_and_modify({ '_id': uuid, 'del': False }, { '$set': { upkey: data['val'] } } )
+
+        if data['val'] is None or len(data['val']) <= 0:
+            doc = yield col.find_and_modify({ '_id': uuid }, { '$unset': { upkey: '' } } )
+        else:
+            doc = yield col.find_and_modify({ '_id': uuid, 'del': False }, { '$set': { upkey: data['val'] } } )
 
         if doc is None:
             res['status'] = 1
@@ -143,22 +147,11 @@ class MainHandler(RequestHandler):
         if not regex.match(uuid):
             raise HTTPError(400, 'Invalid uuid')
 
-        try:
-            data = json.loads(self.request.body)
-        except:
-            raise HTTPError(400, 'Invalid body')            
-
-
         res = { 'status': 0 }  
         col = self.db['files']
 
-        if 'key' in data:
-            # delete metadata
-            metakey = 'meta.' + data['key']
-            doc = yield col.find_and_modify({ '_id': uuid }, { '$unset': { metakey: '' } } )
-        else:
-            # delete file        
-            doc = yield col.find_and_modify({ '_id': uuid }, { '$set': { 'del': True } } )
+        # delete file        
+        doc = yield col.find_and_modify({ '_id': uuid }, { '$set': { 'del': True } } )
 
         if doc is None:
             res['status'] = 1
