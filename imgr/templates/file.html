@@ -4,9 +4,11 @@
    </head>
    <body>
       <h4> {{ filename }} </h4>
-      {% if filetype == 'image/jpeg' %}
-       <img src="static{{ filename }}" alt="{{ filename }}" width="104" height="142"> 
+      {% if filetype.find('image') >= 0 %}
+       <img src="static{{ filename }}" alt="{{ filename }}" width="256" height="256"> 
       {% end %}
+
+
 
       <h6> Metadata: <h6>
       <ul>
