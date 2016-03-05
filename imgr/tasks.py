@@ -20,18 +20,20 @@ def syncfs(path):
     from glob import glob
     from itertools import chain
     import uuid
+    import re
     
     col = db['files']
 
     filelist = (chain.from_iterable(glob(os.path.join(x[0], '*.*')) for x in os.walk(path)))
     for filename in filelist:
         
-        fdoc = col.find_one({'name': filename})
+        fname = re.sub(s, '', filename)
+        fdoc = col.find_one({'name': fname})
         
         # if file is not in db, add it
         if not fdoc:
             fdoc = {'_id': str(uuid.uuid4()),
-                    'name': filename,
+                    'name': fname,
                     'del': False,
                     'meta': {} }
 
@@ -40,7 +42,7 @@ def syncfs(path):
 
         # if file is in db, and 'remove' tag is true, remove file
         if fdoc['del'] == True:
-            os.remove(filename)
+            os.remove(fname)
             col.delete_one(fdoc)
 
 if __name__ == '__main__':
