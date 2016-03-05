@@ -37,7 +37,7 @@ def syncfs(path):
                     'del': False,
                     'meta': {} }
 
-            col.insert_one(fdoc)
+            col.insert(fdoc)
             continue
 
         # if file is in db, and 'remove' tag is true, remove file
