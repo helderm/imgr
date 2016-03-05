@@ -43,14 +43,16 @@ class FileHandler(RequestHandler):
         meta = []
         if len(res) <= 0:
             filename = 'File not found!'
+            filetype = None
         else:
             file = res['files'][0]
             filename = file['name']
+            filetype = file['type']
 
             for m, val in file['meta'].iteritems():
                 meta.append('{mkey}: {mval}'.format(mkey=m, mval=val))      
 
-        self.render("file.html", title='File Description', meta=meta, filename=filename)      
+        self.render("file.html", title='File Description', meta=meta, filename=filename, filetype=filetype)      
 
 
 

@@ -21,6 +21,7 @@ def syncfs(path):
     from itertools import chain
     import uuid
     import re
+    import mimetypes as mt
     
     col = db['files']
 
@@ -28,12 +29,19 @@ def syncfs(path):
     for filename in filelist:
         
         fname = re.sub(path, '', filename)
+        ftype = mt.guess_type(fname)
+        if ftype[0] is None:
+            # ignore unrecognized file
+            continue
+
         fdoc = col.find_one({'name': fname})
         
         # if file is not in db, add it
         if not fdoc:
+
             fdoc = {'_id': str(uuid.uuid4()),
                     'name': fname,
+                    'type': ftype[0],
                     'del': False,
                     'meta': {} }
 

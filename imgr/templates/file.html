@@ -4,6 +4,10 @@
    </head>
    <body>
       <h4> {{ filename }} </h4>
+      {% if filetype == 'image/jpeg' %}
+       <img src="static{{ filename }}" alt="{{ filename }}" width="104" height="142"> 
+      {% end %}
+
       <h6> Metadata: <h6>
       <ul>
         {% for m in meta %}
